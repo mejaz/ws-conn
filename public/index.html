@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Example</title>
+</head>
+<body>
+<h1>WebSocket Example</h1>
+<form id="ws-form">
+    <input type="text" placeholder="Type here..." id="message"/>
+    <button type="submit">Send</button>
+</form>
+
+<ul id="conversation"></ul>
+
+<script>
+	// Establish WebSocket connection
+	const socket = new WebSocket('ws://localhost:3000');
+
+	const addConversation = (source, message) => {
+		// Get the reference to the <ul> element
+		const conversationList = document.getElementById('conversation');
+		// Create a new <li> element
+		const msgEl = document.createElement('li');
+		// Set the text content of the <li> element
+		msgEl.textContent = `${source}: ${message}`;
+		// Append the <li> element to the <ul> element
+		conversationList.appendChild(msgEl);
+	}
+
+	// WebSocket connection opened
+	socket.addEventListener('open', () => {
+		console.log('WebSocket connection established.');
+
+		document.getElementById('ws-form').addEventListener('submit', (e) => {
+			e.preventDefault()
+			const message = document.getElementById('message').value
+			// Sending data to the server
+			socket.send(message)
+			document.getElementById('message').value = ''
+			addConversation('Me', message)
+		})
+	});
+
+	// WebSocket received a message from the server
+	socket.addEventListener('message', (event) => {
+		const message = event.data;
+		addConversation('Server', message)
+	});
+
+	// WebSocket connection closed
+	socket.addEventListener('close', () => {
+		console.log('WebSocket connection closed.');
+	});
+</script>
+</body>
+</html>
